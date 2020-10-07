@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Role;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -27,7 +29,12 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        // jika id admin sama maka kembali lagi (tidak bisa edit sendiri) 
+        if(Auth::user()->id == $id){
+            return redirect()->route('admin.users.index');
+        }
+        // jika id user tidak sama maka
+        return view('admin.users.edit')->with(['user' => User::find($id), 'roles' => Role::all()]);
     }
 
     /**
@@ -39,7 +46,14 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if(Auth::user()->id == $id){
+            return redirect()->route('admin.users.index');
+        }
+
+        $user = User::find($id);
+        $user->roles()->sync($request->roles);
+
+        return redirect()->route('admin.users.index');
     }
 
     /**
